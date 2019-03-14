@@ -9,12 +9,8 @@ ticker = 'EURUSD'
 if os.path.exists('./dados/historico_{}.csv'.format(ticker)):
     infos_ticker(ticker)
 else:
-<<<<<<< HEAD
-    popular_csv_infos_ticker(ticker, 24) # 1 ano no Timeframe H1
+    popular_csv_infos_ticker(ticker, 24) # 1 dia no Timeframe H1
 
-=======
-    popular_csv_infos_ticker(ticker, 8760) # 1 ano no Timeframe H1
->>>>>>> 83ec1c16aa7c03458e29b3c8e0f1759e8a10e107
 df = pd.read_csv('./dados/historico_{}.csv'.format(ticker))
 
 # Agora vamos definir o nosso alvo
