@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/home/neo/anaconda3/bin/python
 from subprocess import Popen
 import sys
 

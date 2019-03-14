@@ -53,7 +53,7 @@ class Ambiente:
 
 class Agente:
     
-    POPULATION_SIZE = 50
+    POPULATION_SIZE = 100
     SIGMA = 0.1
     LEARNING_RATE = 0.001
     
