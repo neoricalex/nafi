@@ -9,9 +9,14 @@ ticker = 'EURUSD'
 if os.path.exists('./dados/historico_{}.csv'.format(ticker)):
     infos_ticker(ticker)
 else:
+<<<<<<< HEAD
     popular_csv_infos_ticker(ticker, 24) # 1 ano no Timeframe H1
 
+=======
+    popular_csv_infos_ticker(ticker, 8760) # 1 ano no Timeframe H1
+>>>>>>> 83ec1c16aa7c03458e29b3c8e0f1759e8a10e107
 df = pd.read_csv('./dados/historico_{}.csv'.format(ticker))
+
 # Agora vamos definir o nosso alvo
 alvo = df.preco_compra.values.tolist()
 
@@ -22,7 +27,7 @@ alvo = df.preco_compra.values.tolist()
 def estado_atual(dados, tecido_nervoso, numero_velas_que_queremos_prever):
     # A técnica que vamos usar peguei do huseinzol05[1], que por sua vez pegou do Karpathy[2], e que,
     # por sua vez, usou uma técnica académicamente descrita como NES - Natural Evolution Strategy[3], 
-    # que ficou conhecida através da galera da OpenAI, em que venceram no Dota 2 em 1v1.
+    # que ficou conhecida através da galera da OpenAI[4], em que venceram no Dota 2 em 1v1.
 
     # Aquilo que queremos definir aqui é: t = (t + 1) — t
     # Onde t é o numero de população(tecido_nervoso), o n o sigma (numero_velas_que_queremos_prever),
@@ -34,3 +39,5 @@ def estado_atual(dados, tecido_nervoso, numero_velas_que_queremos_prever):
     for i in range(numero_velas_que_queremos_prever - 1):
         resultado_estado_atual.append(bloco[i + 1] - bloco[i])
     return np.array([resultado_estado_atual])
+
+# Continua no modelo.py...
