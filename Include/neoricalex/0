@@ -1,0 +1,98 @@
+//--- Iniciar o ZMQ
+#include <Zmq\neoricalex.mqh>
+//--- Iniciar o CTrade
+#include <Trade\Trade.mqh>
+CTrade  trade;
+//+------------------------------------------------------------------+
+// Interpret Zmq Message and perform actions
+void InterpretZmqMessage(string& compArray[])
+{
+    Print("[NEORICALEX]: Interpretando a mensagem..");
+    // 1) Trading
+    // TRADE|ACTION|TYPE|SYMBOL|PRICE|SL|TP|COMMENT|TICKET
+    // e.g. TRADE|OPEN|1|EURUSD|0|50|50|R-to-MetaTrader4|12345678
+    // The 12345678 at the end is the ticket ID, for MODIFY and CLOSE.
+    // 2) Data Requests
+    // 2.1) RATES|SYMBOL   -> Returns Current Bid/Ask
+    // 2.2) DATA|SYMBOL|TIMEFRAME|START_DATETIME|END_DATETIME
+    // NOTE: datetime has format: D'2015.01.01 00:00'
+    /*
+      compArray[0] = TRADE or RATES
+      If RATES -> compArray[1] = Symbol
+      If TRADE ->
+          compArray[0] = TRADE
+          compArray[1] = ACTION (e.g. OPEN, MODIFY, CLOSE)
+          compArray[2] = TYPE (e.g. OP_BUY, OP_SELL, etc - only used when ACTION=OPEN)
+          // ORDER TYPES: 
+          // https://docs.mql4.com/constants/tradingconstants/orderproperties
+          // OP_BUY = 0
+          // OP_SELL = 1
+          // OP_BUYLIMIT = 2
+          // OP_SELLLIMIT = 3
+          // OP_BUYSTOP = 4
+          // OP_SELLSTOP = 5
+          compArray[3] = Symbol (e.g. EURUSD, etc.)
+          compArray[4] = Open/Close Price (ignored if ACTION = MODIFY)
+          compArray[5] = SL
+          compArray[6] = TP
+          compArray[7] = Trade Comment
+    */
+    int switch_action = 0;
+    string volume;
+    if (compArray[0] == "TRADE" && compArray[1] == "OPEN")
+        switch_action = 1;
+    else if (compArray[0] == "RATES")
+        switch_action = 2;
+    else if (compArray[0] == "TRADE" && compArray[1] == "CLOSE")
+        switch_action = 3;
+    else if (compArray[0] == "DATA")
+        switch_action = 4;
+    string ret = "";
+    int ticket = -1;
+    bool ans = false;
+    MqlRates rates[];
+    ArraySetAsSeries(rates, true);    
+    int price_count = 0;
+    ZmqMsg msg("[NEORICALEX]: Processando a mensagem...");
+    switch(switch_action) 
+    {
+        case 1: 
+            repSocket.send(msg, false);
+            ret = "N/A";
+            //ret = BuySample3();
+            Print("Enviando: " + ret);
+            repSocket.send(ret, false);
+            break;
+        case 2: 
+            ret = "N/A"; 
+            if(ArraySize(compArray) > 1) 
+                ret = GetCurrent(compArray[1]);
+            Print("Enviando: " + ret);
+            repSocket.send(ret, false);
+            break;
+        case 3:
+            repSocket.send(msg, false);
+            // IMPLEMENT CLOSE TRADE LOGIC HERE
+            break;
+        case 4:
+            ret = "";
+            // Format: DATA|SYMBOL|TIMEFRAME|START_DATETIME|END_DATETIME
+            price_count = CopyRates(compArray[1], TFMigrate(StringToInteger(compArray[2])),
+                          StringToTime(compArray[3]), StringToTime(compArray[4]),
+                          rates);
+            
+            if (price_count > 0)
+            {              
+                // Construct string of price|price|price|.. etc and send to PULL client.
+                for(int i = 0; i < price_count; i++ ) {
+                     ret = ret + StringFormat("%.6f,%.6f,%.6f,%.6f,%d,%d", rates[i].open, rates[i].high, rates[i].low, rates[i].close, rates[i].tick_volume, rates[i].real_volume);
+                }
+              
+                Print("Enviando: " + ret);
+                repSocket.send(ret, false);
+            }
+            break;
+        default: 
+            break;
+    }
+}
