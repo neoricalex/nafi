@@ -4,11 +4,12 @@ import numpy as np
 import time
 
 # Agora vamos escolher um ticker para trabalharmos
-ticker = escolher_ticker()
+#ticker = escolher_ticker()
+ticker = 'AUDJPY'
 if os.path.exists('./dados/historico_{}.csv'.format(ticker)):
     infos_ticker(ticker)
 else:
-    popular_csv_infos_ticker(ticker, 24)
+    popular_csv_infos_ticker(ticker, 8760) # 1 ano no Timeframe H1
 
 df = pd.read_csv('./dados/historico_{}.csv'.format(ticker))
 # Agora vamos definir o nosso alvo

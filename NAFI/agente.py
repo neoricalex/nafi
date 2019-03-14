@@ -55,7 +55,7 @@ class Agente:
     
     POPULATION_SIZE = 50
     SIGMA = 0.1
-    LEARNING_RATE = 0.03
+    LEARNING_RATE = 0.001
     
     def __init__(self, modelo, saldo, comprar_volume_maximo, vender_volume_maximo, alvo, numero_velas_para_prever, ignorar):
         self.numero_velas_para_prever = numero_velas_para_prever

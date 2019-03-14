@@ -3,7 +3,7 @@ from modelo import *
 
 modelo = Modelo(
     tamanho_dendritos = numero_velas_para_prever,
-    tamanho_axonios = 15000,
+    tamanho_axonios = 10000,
     tamanho_terminal_axonios = 3
     )
 agente = Agente(

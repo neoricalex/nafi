@@ -26,7 +26,7 @@ def agir(modelo, sequencia):
     return np.argmax(decisao[0]), int(comprar[0])
 
 numero_velas_para_prever = 7
-modelo = Modelo(numero_velas_para_prever, 15000, 3)
+modelo = Modelo(numero_velas_para_prever, 10000, 3)
 neuronio = modelo
 saldo = 100
 orcamento = 100
