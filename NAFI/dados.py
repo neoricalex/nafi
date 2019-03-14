@@ -103,3 +103,4 @@ def popular_csv_infos_ticker(ticker, numero_velas):
                     writer.writerow(header_csv)
                     writer.writerow(body_csv)
                     csvfile.close()
+# Continua no estado.py ...
