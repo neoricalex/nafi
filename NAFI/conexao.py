@@ -30,13 +30,12 @@ reqSocket.connect("tcp://localhost:5555")
   --------------------------------------------
   Artigos Acadêmicos, Postagens em Blog's etc ... que foram usados como referencia:
   --------------------------------------------
-1) https://github.com/huseinzol05/Stock-Prediction-Models/blob/master/agent/updated-NES-google.ipynb
-2) https://gist.github.com/karpathy/77fbb6a8dac5395f1b73e7a89300318d
-3) [D. Wierstra, T. Schaul, J. Peters and J. Schmidhuber (2008)](http://people.idsia.ch/~tom/publications/nes.pdf)
-4) [OpenAI's evolutionary strategies](https://blog.openai.com/evolution-strategies/)
+[1] [huseinzol05](https://github.com/huseinzol05/Stock-Prediction-Models/blob/master/agent/updated-NES-google.ipynb)
+[2] [karpathy](https://gist.github.com/karpathy/77fbb6a8dac5395f1b73e7a89300318d)
+[3] [D. Wierstra, T. Schaul, J. Peters and J. Schmidhuber (2008)](http://people.idsia.ch/~tom/publications/nes.pdf)
+[4] [OpenAI's evolutionary strategies](https://blog.openai.com/evolution-strategies/)
 
 [To Remember](https://www.cpuheater.com/deep-learning/introduction-to-recurrent-neural-networks-in-pytorch/)
-[To Remember](https://gist.github.com/karpathy/77fbb6a8dac5395f1b73e7a89300318d)
 
 # links bacanos
 # https://docs.microsoft.com/en-us/sysinternals/
