@@ -1,4 +1,9 @@
 from estado import *
+try:
+    import _pickle as pickle
+except ImportError:
+    import cPickle as pickle
+
 
 class Modelo:
     def __init__(self, tamanho_dendritos, tamanho_axonios, tamanho_terminal_axonios):
@@ -18,15 +23,27 @@ class Modelo:
     def criar_neuronios(self):
         return self.neuronios
 
-    def criar_neuronio(self, neuronios):
+    def criar_nucleo_neuronios(self, neuronios):
         self.neuronios = neuronios
+
+    def save(self, filename='./dados/neuronios.pkl'):
+        with open(filename, 'wb') as fp:
+            pickle.dump(self.neuronios, fp)
+
+    def load(self, filename='./dados/neuronios.pkl'):
+        with open(filename, 'rb') as fp:
+            self.neuronios = pickle.load(fp)
 
 def agir(modelo, sequencia):
     decisao, comprar = modelo.previsao(np.array(sequencia))
     return np.argmax(decisao[0]), int(comprar[0])
 
-numero_velas_para_prever = 7
-modelo = Modelo(numero_velas_para_prever, 100, 3)
+
+
+linhas_csv = contar_linhas_csv(ticker) * 10
+numero_velas_para_prever = int((25 * linhas_csv) / 100)
+
+modelo = Modelo(numero_velas_para_prever, linhas_csv, 3)
 neuronio = modelo
 saldo = 100
 orcamento = 100

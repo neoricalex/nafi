@@ -20,7 +20,7 @@ class Ambiente:
     def criar_neuronios(self):
         return self.neuronios
 
-    def treinamento(self, epoch = 100, printar_cada = 1):
+    def treinamento(self, epoch = 96, printar_cada = 1):
         tempo_duracao = time.time()
         for cada_epoca in range(epoch):
             tecido = []
@@ -53,9 +53,9 @@ class Ambiente:
 
 class Agente:
     
-    POPULATION_SIZE = 50
-    SIGMA = 1.75
-    LEARNING_RATE = 0.001
+    POPULATION_SIZE = 25
+    SIGMA = 0.6
+    LEARNING_RATE = 0.01
     
     def __init__(self, modelo, saldo, comprar_volume_maximo, vender_volume_maximo, alvo, numero_velas_para_prever, ignorar):
         self.numero_velas_para_prever = numero_velas_para_prever

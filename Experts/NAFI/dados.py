@@ -103,4 +103,9 @@ def popular_csv_infos_ticker(ticker, numero_velas):
                     writer.writerow(header_csv)
                     writer.writerow(body_csv)
                     csvfile.close()
+# 
+def contar_linhas_csv(ticker):
+    with open('./dados/historico_{}.csv'.format(ticker)) as f:
+        return sum(1 for linha in f)
+        f.close()
 # Continua no estado.py ...
