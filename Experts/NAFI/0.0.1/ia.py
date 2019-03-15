@@ -17,5 +17,5 @@ agente = Agente(
 )
 
 print('Ticker', ticker, ': o resultado do modelo é ', resultado_modelo)
-agente.treinar(iteracoes = 500, checkagem = 10)
+#agente.treinar(iteracoes = 500, checkagem = 100)
 #agente.comprar()
