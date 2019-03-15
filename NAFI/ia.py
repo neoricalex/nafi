@@ -3,7 +3,7 @@ from modelo import *
 
 modelo = Modelo(
     tamanho_dendritos = numero_velas_para_prever,
-    tamanho_axonios = 1000,
+    tamanho_axonios = 100,
     tamanho_terminal_axonios = 3
     )
 agente = Agente(
@@ -18,4 +18,4 @@ agente = Agente(
 
 print('Ticker', ticker, ': o resultado do modelo é ', resultado_modelo)
 agente.treinar(iteracoes = 500, checkagem = 100)
-#agente.comprar()
+agente.comprar()
