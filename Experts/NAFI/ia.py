@@ -72,9 +72,64 @@ class Model:
     def set_weights(self, weights):
         self.weights = weights
 
+<<<<<<< HEAD
     def save(self, filename='./dados/neuronios.pkl'):
         with open(filename, 'wb') as fp:
             pickle.dump(self.weights, fp)
+=======
+window_size = int((10 * contar_linhas_csv(ticker)) / 100)
+tecido_nervoso = int(100 * window_size)
+print(tecido_nervoso)
+sinapses = 3
+model = Model(window_size, tecido_nervoso, sinapses)
+
+initial_money = 10000
+starting_money = initial_money
+len_alvo = len(alvo) - 1
+weight = model
+skip = 1
+
+state = estado_atual(alvo, 0, window_size + 1)
+inventory = []
+quantity = 0
+
+max_buy = 5
+max_sell = 5
+
+
+def act(model, sequence):
+    decision, buy = model.predict(np.array(sequence))
+    return np.argmax(decision[0]), int(buy[0])
+
+
+for t in range(0, len_alvo, skip):
+    action, buy = act(weight, state)
+    next_state = estado_atual(alvo, t + 1, window_size + 1)
+    if action == 1 and initial_money >= alvo[t]:
+        if buy < 0:
+            buy = 1
+        if buy > max_buy:
+            buy_units = max_buy
+        else:
+            buy_units = buy
+        total_buy = buy_units * alvo[t]
+        initial_money -= total_buy
+        inventory.append(total_buy)
+        quantity += buy_units
+    elif action == 2 and len(inventory) > 0:
+        if quantity > max_sell:
+            sell_units = max_sell
+        else:
+            sell_units = quantity
+        quantity -= sell_units
+        total_sell = sell_units * alvo[t]
+        initial_money += total_sell
+
+    state = next_state
+print(((initial_money - starting_money) / starting_money) * 100)
+
+import time
+>>>>>>> manut
 
     def load(self, filename='./dados/neuronios.pkl'):
         with open(filename, 'rb') as fp:
@@ -82,9 +137,9 @@ class Model:
 
 class Agent:
 
-    POPULATION_SIZE = 15
-    SIGMA = 0.1
-    LEARNING_RATE = 0.03
+    POPULATION_SIZE = 50
+    SIGMA = 0.5
+    LEARNING_RATE = 0.001
 
     def __init__(
         self, model, money, max_buy, max_sell, close, window_size, skip
@@ -204,6 +259,7 @@ class Agent:
             '\ntotal gained %f, total investment %f %%'
             % (initial_money - starting_money, invest)
         )
+<<<<<<< HEAD
         #plt.figure(figsize = (20, 10))
         #plt.plot(close, label = 'true close', c = 'g')
         #plt.plot(
@@ -289,6 +345,19 @@ checkpoint = 10
 model = Model(input_size = window_size, 
               layer_size = layer_size, 
               output_size = output_size)
+=======
+        plt.figure(figsize = (20, 10))
+        plt.plot(alvo, label = 'true alvo', c = 'g')
+        plt.plot(
+            alvo, 'X', label = 'predict buy', markevery = states_buy, c = 'b'
+        )
+        plt.plot(
+            alvo, 'o', label = 'predict sell', markevery = states_sell, c = 'r'
+        )
+        plt.legend()
+        plt.show()
+model = Model(input_size = window_size, layer_size = tecido_nervoso, output_size = sinapses)
+>>>>>>> manut
 agent = Agent(
     model = model,
     money = money,
