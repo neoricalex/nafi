@@ -17,11 +17,15 @@ def get_state(data, t, n):
         res.append(block[i + 1] - block[i])
     return np.array([res])
 
-def alvo():
+def ticker():
   tickers = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDCAD', 'AUDUSD',
               'EURCHF', 'EURJPY', 'EURGBP', 'EURCAD', 'GBPCHF', 'GBPJPY', 
-              'AUDJPY', 'GOLD', 'SILVER']
+              'AUDJPY', 'GOLD', 'SILVER', 'XAUUSD', 'XAGUSD']
   ticker = random.choice(tickers)
+
+  return ticker
+
+def alvo(ticker):
   alvo = remote_send(reqSocket, 'INFO_TICKER|' + ticker )
   alvo = alvo.split(',')
   alvo = alvo[1]
@@ -49,7 +53,7 @@ def alvo():
   
   return alvo
 
-close = alvo()
+close = alvo(ticker())
 
 class Model:
     def __init__(self, input_size, layer_size, output_size):
