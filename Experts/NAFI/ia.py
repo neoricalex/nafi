@@ -86,9 +86,9 @@ class Model:
 
 class Agent:
 
-    POPULATION_SIZE = 15
+    POPULATION_SIZE = 50
     SIGMA = 0.1
-    LEARNING_RATE = 0.03
+    LEARNING_RATE = 0.001
 
     def __init__(
         self, model, money, max_buy, max_sell, close, window_size, skip
@@ -234,12 +234,14 @@ class Deep_Evolution_Strategy:
         for index, i in enumerate(population):
             jittered = self.sigma * i
             weights_population.append(weights[index] + jittered)
+            print(weights_population)
+
         return weights_population
 
     def get_weights(self):
         return self.weights
 
-    def train(self, epoch = 1024, print_every = 1):
+    def train(self, epoch = 100, print_every = 1):
         try:
           model.load()
         except FileNotFoundError:
@@ -251,6 +253,7 @@ class Deep_Evolution_Strategy:
         for i in range(epoch):
             population = []
             rewards = np.zeros(self.population_size)
+            print(rewards)
             for k in range(self.population_size):
                 x = []
                 for w in self.weights:
@@ -261,7 +264,9 @@ class Deep_Evolution_Strategy:
                     self.weights, population[k]
                 )
                 rewards[k] = self.reward_function(weights_population)
-            #rewards = (rewards - np.mean(rewards)) / np.std(rewards)
+                print(rewards[k])
+            rewards = (rewards - np.mean(rewards)) / np.std(rewards)
+            print(rewards)
             for index, w in enumerate(self.weights):
                 A = np.array([p[index] for p in population])
                 self.weights[index] = (
