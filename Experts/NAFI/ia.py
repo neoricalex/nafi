@@ -144,9 +144,6 @@ class Agent:
                 total_sell = sell_units * self.close[t]
                 initial_money += total_sell
 
-            if action == 3:
-              print('Ação 3')
-
             state = next_state
         return ((initial_money - starting_money) / starting_money) * 100
 
@@ -229,6 +226,16 @@ class Deep_Evolution_Strategy:
         self.sigma = sigma
         self.learning_rate = learning_rate
 
+    def _get_population(self):
+        population = []
+        for k in range(self.population_size):
+            x = []
+            for w in self.weights:
+                x.append(np.random.randn(*w.shape))
+            population.append(x)
+
+        return population
+
     def _get_weight_from_population(self, weights, population):
         weights_population = []
         for index, i in enumerate(population):
@@ -241,7 +248,11 @@ class Deep_Evolution_Strategy:
     def get_weights(self):
         return self.weights
 
+<<<<<<< HEAD
     def train(self, epoch = 100, print_every = 1):
+=======
+    def train(self, epoch = 128, print_every = 1):
+>>>>>>> e8e09281ba7400cda53549deb0b25c9576440551
         try:
           model.load()
         except FileNotFoundError:
@@ -251,6 +262,7 @@ class Deep_Evolution_Strategy:
         model.set_weights(self.weights)
         lasttime = time.time()
         for i in range(epoch):
+<<<<<<< HEAD
             population = []
             rewards = np.zeros(self.population_size)
             print(rewards)
@@ -275,6 +287,27 @@ class Deep_Evolution_Strategy:
                     / (self.population_size * self.sigma)
                     * np.dot(A.T, rewards).T
                 )
+=======
+            if i == 0:
+                pass
+            else:
+                population = self._get_population()
+                rewards = np.zeros(self.population_size)
+                for k in range(self.population_size):
+                    weights_population = self._get_weight_from_population(
+                        self.weights, population[k]
+                    )
+                    rewards[k] = self.reward_function(weights_population)
+                rewards = (rewards - np.mean(rewards)) / np.std(rewards)
+                for index, w in enumerate(self.weights):
+                    A = np.array([p[index] for p in population])
+                    self.weights[index] = (
+                        w
+                        + self.learning_rate
+                        / (self.population_size * self.sigma)
+                        * np.dot(A.T, rewards).T
+                    )
+>>>>>>> e8e09281ba7400cda53549deb0b25c9576440551
             if (i + 1) % print_every == 0:
                 print(
                     'Ao final de %d iterações a recompensa é de %f'
@@ -286,14 +319,14 @@ class Deep_Evolution_Strategy:
         model.save()
 
 window_size = 24
-layer_size = 1000
+layer_size = 8192
 output_size = 3
 max_buy = 5
 max_sell = 5
 money = 1000
 skip = 1
-iterations = 100
-checkpoint = 10
+iterations = 1
+checkpoint = 1
 
 model = Model(input_size = window_size, 
               layer_size = layer_size, 
@@ -306,6 +339,5 @@ agent = Agent(
     close = close,
     window_size = window_size,
     skip = skip)
-
 agent.fit(iterations = iterations, checkpoint = checkpoint)
-#agent.buy()
+agent.buy()
