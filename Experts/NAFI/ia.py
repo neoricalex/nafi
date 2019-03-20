@@ -2,7 +2,8 @@
 print('Importando as bibliotecas do processo...')
 import time
 from core.envs.griduniverse_env import GridUniverseEnv
-from ping import *
+from core.funcoes.ping import *
+from core.algorithms.algo import *
 
 
 def run_griduniverse_from_text_file():
@@ -27,10 +28,21 @@ def run_griduniverse_from_text_file():
 
 if __name__ == '__main__':
     # Run random agent on environment variations
-    print('Verificando se o Servidor com o MT5 está Online...')
+    print('Verificando se o Servidor MT5 está Online...')
     pingar = isOpen('127.0.0.1', 5555)
+
     # Provávelmente o while loop é melhor. Mas para já vamos de IF até termos um MVP :-)
     if pingar == True:
-        run_griduniverse_from_text_file()
+
+        # Checkar se é dia de semana localmente
+        dia_semana = checkar_dia_semana_local()
+        final_de_semana = [5, 6]
+        if dia_semana in final_de_semana:
+            print('[TODO] Final de Semana Local: DeepRL, RNN, NN ... :-) ')
+        else:
+            checkar_hora_local()
+            print('Parando o processo...')
+            exit()
+            run_griduniverse_from_text_file()
     else:
         print('O Servidor do MT5 está Offline. Saindo ...')
