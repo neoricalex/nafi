@@ -1,5 +1,7 @@
+print('Importando as bibliotecas do processo...')
 import time
 from core.envs.griduniverse_env import GridUniverseEnv
+from ping import *
 
 
 def run_griduniverse_from_text_file():
@@ -24,5 +26,9 @@ def run_griduniverse_from_text_file():
 
 if __name__ == '__main__':
     # Run random agent on environment variations
-    run_griduniverse_from_text_file()
-
+    print('Verificando se o Servidor com o MT5 está Online...')
+    pingar = isOpen('127.0.0.1', 5555)
+    if pingar == True:
+        run_griduniverse_from_text_file()
+    else:
+        print('O Servidor do MT5 está Offline. Saindo ...')
