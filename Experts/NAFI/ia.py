@@ -1,3 +1,4 @@
+# Adaptado de https://github.com/TheMTank/GridUniverse/blob/master/examples/griduniverse_env_examples.py
 print('Importando as bibliotecas do processo...')
 import time
 from core.envs.griduniverse_env import GridUniverseEnv
