@@ -14,4 +14,6 @@ cd gym
 pip install -e .
 cd ..
 ## Rodar
+TODO
+### Ubuntu
 python treinar.py ia.py # TODO: Melhorar ...
