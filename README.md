@@ -17,3 +17,7 @@ cd ..
 TODO
 ### Ubuntu
 python treinar.py ia.py # TODO: Melhorar ...
+## Como ajudar
+TODO
+## Acknowledgments
+TODO
