@@ -21,3 +21,6 @@ python treinar.py ia.py # TODO: Melhorar ...
 TODO
 ## Acknowledgments
 TODO
+## Referências
+Ver Acknowledgments para inglês e;
+TODO
