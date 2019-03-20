@@ -21,7 +21,8 @@ def ticker():
   tickers = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDCAD', 'AUDUSD',
               'EURCHF', 'EURJPY', 'EURGBP', 'EURCAD', 'GBPCHF', 'GBPJPY', 
               'AUDJPY', 'GOLD', 'SILVER', 'XAUUSD', 'XAGUSD']
-  ticker = random.choice(tickers)
+  #ticker = random.choice(tickers)
+  ticker = 'EURUSD'
 
   return ticker
 
@@ -174,10 +175,10 @@ class Agent:
                 inventory.append(total_buy)
                 quantity += buy_units
                 states_buy.append(t)
-                print(
-                    'day %d: buy %d units at price %f, total balance %f'
-                    % (t, buy_units, total_buy, initial_money)
-                )
+                #print(
+                #    'day %d: buy %d units at price %f, total balance %f'
+                #    % (t, buy_units, total_buy, initial_money)
+                #)
             elif action == 2 and len(inventory) > 0:
                 bought_price = inventory.pop(0)
                 if quantity > self.max_sell:
@@ -194,15 +195,15 @@ class Agent:
                     invest = ((total_sell - bought_price) / bought_price) * 100
                 except:
                     invest = 0
-                print(
-                    'day %d, sell %d units at price %f, investment %f %%, total balance %f,'
-                    % (t, sell_units, total_sell, invest, initial_money)
-                )
+                #print(
+                #    'day %d, sell %d units at price %f, investment %f %%, total balance %f,'
+                #    % (t, sell_units, total_sell, invest, initial_money)
+                #)
             state = next_state
 
         invest = ((initial_money - starting_money) / starting_money) * 100
         print(
-            '\ntotal gained %f, total investment %f %%'
+            '\n[Lucro/Prejuizo] %f [ROI] %f %%'
             % (initial_money - starting_money, invest)
         )
         #plt.figure(figsize = (20, 10))
@@ -241,18 +242,13 @@ class Deep_Evolution_Strategy:
         for index, i in enumerate(population):
             jittered = self.sigma * i
             weights_population.append(weights[index] + jittered)
-            print(weights_population)
 
         return weights_population
 
     def get_weights(self):
         return self.weights
 
-<<<<<<< HEAD
-    def train(self, epoch = 100, print_every = 1):
-=======
     def train(self, epoch = 128, print_every = 1):
->>>>>>> e8e09281ba7400cda53549deb0b25c9576440551
         try:
           model.load()
         except FileNotFoundError:
@@ -262,23 +258,14 @@ class Deep_Evolution_Strategy:
         model.set_weights(self.weights)
         lasttime = time.time()
         for i in range(epoch):
-<<<<<<< HEAD
-            population = []
+            population = self._get_population()
             rewards = np.zeros(self.population_size)
-            print(rewards)
-            for k in range(self.population_size):
-                x = []
-                for w in self.weights:
-                    x.append(np.random.randn(*w.shape))
-                population.append(x)
             for k in range(self.population_size):
                 weights_population = self._get_weight_from_population(
                     self.weights, population[k]
                 )
                 rewards[k] = self.reward_function(weights_population)
-                print(rewards[k])
             rewards = (rewards - np.mean(rewards)) / np.std(rewards)
-            print(rewards)
             for index, w in enumerate(self.weights):
                 A = np.array([p[index] for p in population])
                 self.weights[index] = (
@@ -287,27 +274,6 @@ class Deep_Evolution_Strategy:
                     / (self.population_size * self.sigma)
                     * np.dot(A.T, rewards).T
                 )
-=======
-            if i == 0:
-                pass
-            else:
-                population = self._get_population()
-                rewards = np.zeros(self.population_size)
-                for k in range(self.population_size):
-                    weights_population = self._get_weight_from_population(
-                        self.weights, population[k]
-                    )
-                    rewards[k] = self.reward_function(weights_population)
-                rewards = (rewards - np.mean(rewards)) / np.std(rewards)
-                for index, w in enumerate(self.weights):
-                    A = np.array([p[index] for p in population])
-                    self.weights[index] = (
-                        w
-                        + self.learning_rate
-                        / (self.population_size * self.sigma)
-                        * np.dot(A.T, rewards).T
-                    )
->>>>>>> e8e09281ba7400cda53549deb0b25c9576440551
             if (i + 1) % print_every == 0:
                 print(
                     'Ao final de %d iterações a recompensa é de %f'
@@ -325,8 +291,8 @@ max_buy = 5
 max_sell = 5
 money = 1000
 skip = 1
-iterations = 1
-checkpoint = 1
+iterations = 100
+checkpoint = 10
 
 model = Model(input_size = window_size, 
               layer_size = layer_size, 
