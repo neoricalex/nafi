@@ -24,3 +24,6 @@ TODO
 ## Referências
 Ver Acknowledgments para inglês e;
 TODO
+## Licença
+Faz o que quiseres, mas não me podes processar por eventuais problemas: BSD e;
+Me dá teu código <-> eu te dou o meu: GPLv2 (Não é a >3 !)
