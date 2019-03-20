@@ -1,11 +1,15 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set()
-
 import pandas as pd
-google = pd.read_csv('./dados/GOOG.csv')
-google.head()
+import matplotlib.pyplot as plt
+import time, csv, os, random
+from conexao import *
+from math import sqrt
+
+try:
+    import _pickle as pickle
+except ImportError:
+    import cPickle as pickle
+
 
 def get_state(data, t, n):
     d = t - n + 1
@@ -15,58 +19,43 @@ def get_state(data, t, n):
         res.append(block[i + 1] - block[i])
     return np.array([res])
 
-close = google.Close.values.tolist()
+def ticker():
+  tickers = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDCAD', 'AUDUSD',
+              'EURCHF', 'EURJPY', 'EURGBP', 'EURCAD', 'GBPCHF', 'GBPJPY', 
+              'AUDJPY', 'GOLD', 'SILVER', 'XAUUSD', 'XAGUSD']
+  ticker = random.choice(tickers)
 
-class Deep_Evolution_Strategy:
-    def __init__(
-        self, weights, reward_function, population_size, sigma, learning_rate
-    ):
-        self.weights = weights
-        self.reward_function = reward_function
-        self.population_size = population_size
-        self.sigma = sigma
-        self.learning_rate = learning_rate
+  return ticker
 
-    def _get_weight_from_population(self, weights, population):
-        weights_population = []
-        for index, i in enumerate(population):
-            jittered = self.sigma * i
-            weights_population.append(weights[index] + jittered)
-        return weights_population
+def alvo(ticker):
+  alvo = remote_send(reqSocket, 'INFO_TICKER|' + ticker )
+  alvo = alvo.split(',')
+  alvo = alvo[1]
+ 
+  header_csv = ['cotacao']
+  body_csv = [alvo]
 
-    def get_weights(self):
-        return self.weights
+  # Verificando se o csv já existe
+  if os.path.exists('./dados/cotacao_{}.csv'.format(ticker)):
+      # Se existir apenda
+      with open('./dados/cotacao_{}.csv'.format(ticker), 'a', newline='\n') as csvfile:
+          writer = csv.writer(csvfile, delimiter=',')
+          writer.writerow(body_csv)        
+          csvfile.close()
+  else:
+      # Se não existir cria
+      with open('./dados/cotacao_{}.csv'.format(ticker), 'w', newline='') as csvfile:
+          writer = csv.writer(csvfile, delimiter=',')
+          writer.writerow(header_csv)
+          writer.writerow(body_csv)
+          csvfile.close()
 
-    def train(self, epoch = 100, print_every = 1):
-        lasttime = time.time()
-        for i in range(epoch):
-            population = []
-            rewards = np.zeros(self.population_size)
-            for k in range(self.population_size):
-                x = []
-                for w in self.weights:
-                    x.append(np.random.randn(*w.shape))
-                population.append(x)
-            for k in range(self.population_size):
-                weights_population = self._get_weight_from_population(
-                    self.weights, population[k]
-                )
-                rewards[k] = self.reward_function(weights_population)
-            rewards = (rewards - np.mean(rewards)) / np.std(rewards)
-            for index, w in enumerate(self.weights):
-                A = np.array([p[index] for p in population])
-                self.weights[index] = (
-                    w
-                    + self.learning_rate
-                    / (self.population_size * self.sigma)
-                    * np.dot(A.T, rewards).T
-                )
-            if (i + 1) % print_every == 0:
-                print(
-                    'iter %d. reward: %f'
-                    % (i + 1, self.reward_function(self.weights))
-                )
-        print('time taken to train:', time.time() - lasttime, 'seconds')
+  alvo = pd.read_csv('./dados/cotacao_{}.csv'.format(ticker))
+  alvo = alvo.cotacao.values.tolist()
+  
+  return alvo
+
+close = alvo(ticker())
 
 class Model:
     def __init__(self, input_size, layer_size, output_size):
@@ -89,56 +78,13 @@ class Model:
     def set_weights(self, weights):
         self.weights = weights
 
-window_size = 30
-model = Model(window_size, 1000, 3)
+    def save(self, filename='./dados/neuronios.pkl'):
+        with open(filename, 'wb') as fp:
+            pickle.dump(self.weights, fp)
 
-initial_money = 10000
-starting_money = initial_money
-len_close = len(close) - 1
-weight = model
-skip = 1
-
-state = get_state(close, 0, window_size + 1)
-inventory = []
-quantity = 0
-
-max_buy = 5
-max_sell = 5
-
-
-def act(model, sequence):
-    decision, buy = model.predict(np.array(sequence))
-    return np.argmax(decision[0]), int(buy[0])
-
-
-for t in range(0, len_close, skip):
-    action, buy = act(weight, state)
-    next_state = get_state(close, t + 1, window_size + 1)
-    if action == 1 and initial_money >= close[t]:
-        if buy < 0:
-            buy = 1
-        if buy > max_buy:
-            buy_units = max_buy
-        else:
-            buy_units = buy
-        total_buy = buy_units * close[t]
-        initial_money -= total_buy
-        inventory.append(total_buy)
-        quantity += buy_units
-    elif action == 2 and len(inventory) > 0:
-        if quantity > max_sell:
-            sell_units = max_sell
-        else:
-            sell_units = quantity
-        quantity -= sell_units
-        total_sell = sell_units * close[t]
-        initial_money += total_sell
-
-    state = next_state
-((initial_money - starting_money) / starting_money) * 100
-
-import time
-
+    def load(self, filename='./dados/neuronios.pkl'):
+        with open(filename, 'rb') as fp:
+            self.weights = pickle.load(fp)
 
 class Agent:
 
@@ -180,7 +126,7 @@ class Agent:
         for t in range(0, len_close, self.skip):
             action, buy = self.act(state)
             next_state = get_state(self.close, t + 1, self.window_size + 1)
-            if action == 1 and initial_money >= self.close[t]:
+            if action == 1 and initial_money >= self.close[t] and quantity > 0:
                 if buy < 0:
                     buy = 1
                 if buy > self.max_buy:
@@ -263,26 +209,103 @@ class Agent:
             '\ntotal gained %f, total investment %f %%'
             % (initial_money - starting_money, invest)
         )
-        plt.figure(figsize = (20, 10))
-        plt.plot(close, label = 'true close', c = 'g')
-        plt.plot(
-            close, 'X', label = 'predict buy', markevery = states_buy, c = 'b'
-        )
-        plt.plot(
-            close, 'o', label = 'predict sell', markevery = states_sell, c = 'r'
-        )
-        plt.legend()
-        plt.show()
-model = Model(input_size = window_size, layer_size = 1500, output_size = 3)
+        #plt.figure(figsize = (20, 10))
+        #plt.plot(close, label = 'true close', c = 'g')
+        #plt.plot(
+        #    close, 'X', label = 'predict buy', markevery = states_buy, c = 'b'
+        #)
+        #plt.plot(
+        #    close, 'o', label = 'predict sell', markevery = states_sell, c = 'r'
+        #)
+        #plt.legend()
+        #plt.show()
+
+class Deep_Evolution_Strategy:
+    def __init__(
+        self, weights, reward_function, population_size, sigma, learning_rate
+    ):
+        self.weights = weights
+        self.reward_function = reward_function
+        self.population_size = population_size
+        self.sigma = sigma
+        self.learning_rate = learning_rate
+
+    def _get_population(self):
+        population = []
+        for k in range(self.population_size):
+            x = []
+            for w in self.weights:
+                x.append(np.random.randn(*w.shape))
+            population.append(x)
+
+        return population
+
+    def _get_weight_from_population(self, weights, population):
+        weights_population = []
+        for index, i in enumerate(population):
+            jittered = self.sigma * i
+            weights_population.append(weights[index] + jittered)
+        return weights_population
+
+    def get_weights(self):
+        return self.weights
+
+    def train(self, epoch = 100, print_every = 1):
+        try:
+          model.load()
+        except FileNotFoundError:
+          pass
+
+        model.get_weights()
+        model.set_weights(self.weights)
+        lasttime = time.time()
+        for i in range(epoch):
+            population = self._get_population()
+            rewards = np.zeros(self.population_size)
+            for k in range(self.population_size):
+                weights_population = self._get_weight_from_population(
+                    self.weights, population[k]
+                )
+                rewards[k] = self.reward_function(weights_population)
+            rewards = (rewards - np.mean(rewards)) / np.std(rewards)
+            for index, w in enumerate(self.weights):
+                A = np.array([p[index] for p in population])
+                self.weights[index] = (
+                    w
+                    + self.learning_rate
+                    / (self.population_size * self.sigma)
+                    * np.dot(A.T, rewards).T
+                )
+        if (i + 1) % print_every == 0:
+            print(
+                'Ao final de %d iterações a recompensa é de %f'
+                % (i + 1, self.reward_function(self.weights))
+            )
+                
+        print('Treinamento efetuado em', time.time() - lasttime, 'segundos')
+
+        model.save()
+
+window_size = 24
+layer_size = 8192
+output_size = 3
+max_buy = 5
+max_sell = 5
+money = 1000
+skip = 1
+iterations = 1
+checkpoint = 1
+
+model = Model(input_size = window_size, 
+              layer_size = layer_size, 
+              output_size = output_size)
 agent = Agent(
     model = model,
-    money = 10000,
-    max_buy = 5,
-    max_sell = 5,
+    money = money,
+    max_buy = max_buy,
+    max_sell = max_sell,
     close = close,
     window_size = window_size,
-    skip = 1,
-)
-
-agent.fit(iterations = 500, checkpoint = 10)
+    skip = skip)
+agent.fit(iterations = iterations, checkpoint = checkpoint)
 agent.buy()
