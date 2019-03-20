@@ -29,6 +29,7 @@ if __name__ == '__main__':
     # Run random agent on environment variations
     print('Verificando se o Servidor com o MT5 está Online...')
     pingar = isOpen('127.0.0.1', 5555)
+    # Provávelmente o while loop é melhor. Mas para já vamos de IF até termos um MVP :-)
     if pingar == True:
         run_griduniverse_from_text_file()
     else:
