@@ -8,6 +8,7 @@ TODO
 ### MT5
 TODO
 ### GYM
+TODO
 #### Ubuntu
 cd gym
 pip install -e .
