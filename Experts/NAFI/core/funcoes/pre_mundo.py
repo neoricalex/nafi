@@ -1,10 +1,10 @@
+# -*- coding: utf-8 -*-
 print('Importando as bibliotecas do Pré-Mundo...')
 from datetime import date
 from datetime import time
 from datetime import datetime
 from core.algorithms.algo import *
-import socket
-import time
+import socket, time, zmq
 from core.envs.universo import GridUniverseEnv
 print('Importando as funções do Pré-Mundo....')
 
@@ -27,7 +27,7 @@ def run_griduniverse_from_text_file():
                #time.sleep(1.5) # uncomment to watch slower
                observation, reward, done, info = env._step(action)
                if done:
-                     print("O Algoritmo resolveu o problema em {} jogadas".format(jogadas + 1))
+                     print("O Algoritmo resolveu a equação em {} tentativas".format(jogadas + 1))
                      rodando = False
                jogadas += 1
 
@@ -58,6 +58,21 @@ def checkar_hora_local():
 
     horas = datetime.time(datetime.now())
     horas = datetime.time(datetime.now())
+
+# Conectar ao Meta Trader
+def remote_send(socket, data):
+    try:
+        socket.send_string(data)
+        msg = socket.recv_string()
+        return (msg)
+    except zmq.Again as e:
+        print ("Aguardando o PUSH do MT5 ...")       
+
+# Obter o contexto do zmq
+context = zmq.Context()
+# Criar um Socket para as requisições
+reqSocket = context.socket(zmq.REQ)
+reqSocket.connect("tcp://localhost:5555")
 
 def checkar_pre_mundo():
     # Run random agent on environment variations

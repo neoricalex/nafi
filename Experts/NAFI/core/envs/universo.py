@@ -1,17 +1,16 @@
+print('Importando as bibliotecas do universo...')
 import sys
 import random
 import time
-
 import numpy as np
 from six import StringIO
 import gym
 from gym import spaces
 from gym.utils import seeding
-
 from core.envs import maze_generation
-from conexao import *
+from core.funcoes import pre_mundo
 
-
+print('Importando as Classes do Universo...')
 class GridUniverseEnv(gym.Env):
     metadata = {'render.modes': ['human', 'ansi', 'graphic']}
 
@@ -280,16 +279,16 @@ class GridUniverseEnv(gym.Env):
         walls_indices = []
         self.trading_states = []
         # Infos da conta
-        infos_conta = self.pegar_infos_conta()
-        saldo = infos_conta[0]
-        credito = infos_conta[1]
-        lucro = infos_conta[2]
-        equity = infos_conta[3]
-        margem = infos_conta[4]
-        margem_livre = infos_conta[5]
-        margem_level = infos_conta[6]
-        margem_socall = infos_conta[7]
-        margem_soso = infos_conta[8]
+        #infos_conta = self.pegar_infos_conta()
+        #saldo = infos_conta[0]
+        #credito = infos_conta[1]
+        #lucro = infos_conta[2]
+        #equity = infos_conta[3]
+        #margem = infos_conta[4]
+        #margem_livre = infos_conta[5]
+        #margem_level = infos_conta[6]
+        #margem_socall = infos_conta[7]
+        #margem_soso = infos_conta[8]
         # Cotações
         #preco_venda = infos_ticker[0]
         #preco_compra = infos_ticker[1]
