@@ -6,6 +6,8 @@ from datetime import datetime
 from core.algorithms.algo import *
 import socket, time, zmq
 from core.envs.universo import GridUniverseEnv
+from core.funcoes.mundo import *
+
 print('Importando as funções do Pré-Mundo....')
 
 # Adaptado de https://github.com/TheMTank/GridUniverse/blob/master/examples/griduniverse_env_examples.py
@@ -28,6 +30,8 @@ def run_griduniverse_from_text_file():
                observation, reward, done, info = env._step(action)
                if done:
                      print("O Algoritmo resolveu a equação em {} tentativas".format(jogadas + 1))
+                     salvar(observation=observation)
+                     print('[TODO]: Ver direito se o circuito da memória do estado inicial ta funcionando.')
                      rodando = False
                jogadas += 1
 

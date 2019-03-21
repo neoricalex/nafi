@@ -9,6 +9,11 @@ from gym import spaces
 from gym.utils import seeding
 from core.envs import maze_generation
 from core.funcoes import pre_mundo
+import os
+try:
+    import _pickle as pickle
+except ImportError:
+    import cPickle as pickle
 
 print('Importando as Classes do Universo...')
 class GridUniverseEnv(gym.Env):
@@ -38,12 +43,16 @@ class GridUniverseEnv(gym.Env):
             raise TypeError("lava_states parameter must be a list of integer indices")
         if walls is not None and not isinstance(walls, list):
             raise TypeError("walls parameter must be a list of integer indices")
+        if trading_states is not None and not isinstance(trading_states, list):
+            raise TypeError("O parâmetro trading_states deve ser uma lista de índices inteiros")
+
         if not (isinstance(grid_shape, list) or isinstance(grid_shape, tuple)) or len(grid_shape) != 2 \
                 or not isinstance(grid_shape[0], int) or not isinstance(grid_shape[1], int):
             raise TypeError("grid_shape parameter must be tuple/list of two integers")
         self.x_max = grid_shape[0] # num columns
         self.y_max = grid_shape[1] # num rows
         self.world = self._generate_world()
+
         # set action space params
         self.action_space = spaces.Discrete(4)
         # main boundary check for edges of map done here.
@@ -55,39 +64,79 @@ class GridUniverseEnv(gym.Env):
 
         self.action_descriptors = ['UP', 'RIGHT', 'DOWN', 'LEFT']
         self.action_descriptor_to_int = {desc: idx for idx, desc in enumerate(self.action_descriptors)}
+
         # set observed params: [current state, world state]
         self.observation_space = spaces.Discrete(self.world.size)
+
         # set initial state for the agent. If initial_state is a list, choose randomly
         if isinstance(initial_state, int):
             initial_state = [initial_state] # convert to list
+
+        # setar a memória
+        memoria = "./core/memoria.pkl"
+        estado_inicial = initial_state
+        # Verificando se o arquivo da memória existe
+        if os.path.exists('{}'.format(memoria)):
+            # Se existir apenda
+            with open(memoria, "rb") as f:
+                estado_inicial.append(pickle.load(f))
+                f.close()
+        else:
+            # Se não existir cria
+            with open(memoria, "wb") as f:
+                pickle.dump(estado_inicial, f)
+                for estado in estado_inicial:
+                    pickle.dump(estado, f)
+                f.close()
+
+        # Carregar a memória
+        with open(memoria, 'rb') as f:
+            #print(pickle.load(f))
+            estado_inicial = pickle.load(f)
+            f.close
+
+        initial_state = estado_inicial
+
         self.starting_states = initial_state
         self.previous_state = self.current_state = self.initial_state = random.choice(self.starting_states)
+
         # set terminal goal states state(s) and default terminal state if None given
         if goal_states is None or len(goal_states) == 0:
             self.goal_states = [self.world.size - 1]
         else:
             self.goal_states = goal_states
+
         # set lava terminal states
         if lava_states is None:
             self.lava_states = []
         else:
             self.lava_states = lava_states
+
+        # setar o trading states
+        if trading_states is None:
+            self.trading_states = []
+        else:
+            self.trading_states = trading_states
+
         # set walls
         self.wall_indices = []
         self.wall_grid = np.zeros(self.world.shape)
         self._generate_walls(walls)
+
         # set reward matrix
+        doletas = 100
         self.reward_matrix = np.full(self.world.shape, -1)
         for terminal_state in self.goal_states:
             try:
-                self.reward_matrix[terminal_state] = 10
+                self.reward_matrix[terminal_state] = doletas + 1
             except IndexError:
                 raise IndexError("Terminal goal state {} is out of grid bounds or is wrong type. Should be an integer.".format(terminal_state))
         for terminal_state in self.lava_states:
             try:
-                self.reward_matrix[terminal_state] = -10
+                self.reward_matrix[terminal_state] = doletas - 1
             except IndexError:
                 raise IndexError("Lava terminal state {} is out of grid bounds or is wrong type. Should be an integer.".format(terminal_state))
+
         # self.reward_range = [-inf, inf] # default values already
         self.num_previous_states_to_store = 500
         self.last_n_states = []
@@ -249,6 +298,26 @@ class GridUniverseEnv(gym.Env):
             all_lines = ["".join(line.split()) for line in all_lines if line] # remove empty lines and any whitespace
 
             self._create_custom_world_from_text(all_lines)
+
+    def _criar_memoria(estado_inicial):
+        memoria = "memoria.pkl"
+        # Verificando se o arquivo da memória existe
+        if os.path.join('./core/{}'.format(memoria)):
+            # Se existir apenda
+            with open(memoria, "rb") as f:
+                for _ in range(pickle.load(f)):
+                    estado_inicial.append(pickle.load(f))
+            f.close()
+        else:
+            # Se não existir cria
+            with open(memoria, "wb") as f:
+                pickle.dump(len(estado_inicial), f)
+                for estado in estado_inicial:
+                    pickle.dump(estado, f)
+            f.close()
+
+        return estado_inicial
+
 
     def pegar_infos_conta(self):
         info_conta = remote_send(reqSocket, 'INFO_CONTA')
