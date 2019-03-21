@@ -6,7 +6,7 @@ except ImportError:
 
 def salvar(observation):
     # setar a memória
-    memoria = "../memoria.pkl"
+    memoria = "./core/memoria.pkl"
     estado_inicial = [observation]
     with open(memoria, "rb") as f:
         estado_inicial.append(pickle.load(f))

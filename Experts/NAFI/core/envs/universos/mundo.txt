@@ -1,10 +1,7 @@
-##########
-#xooooooo#
-#oooooooo#
-#oooooooo#
-#oooooooo#
-#oooooooo#
-#oooooooo#
-#oooooooo#
-#oooooooG#
-##########
+xAooooo
+ooooooo
+ooooooo
+ooooooo
+ooooooo
+ooooooo
+ooooooG

@@ -96,6 +96,7 @@ class GridUniverseEnv(gym.Env):
             f.close
 
         initial_state = estado_inicial
+        #print(estado_inicial)
 
         self.starting_states = initial_state
         self.previous_state = self.current_state = self.initial_state = random.choice(self.starting_states)
@@ -124,16 +125,21 @@ class GridUniverseEnv(gym.Env):
         self._generate_walls(walls)
 
         # set reward matrix
-        doletas = 100
         self.reward_matrix = np.full(self.world.shape, -1)
+        for teste_state in self.trading_states:
+            try:
+                self.reward_matrix[teste_state] = 1
+            except IndexError:
+                raise IndexError("O trading state {} is out of grid bounds or is wrong type. Should be an integer.".format(teste_state))
+
         for terminal_state in self.goal_states:
             try:
-                self.reward_matrix[terminal_state] = doletas + 1
+                self.reward_matrix[terminal_state] = 1
             except IndexError:
                 raise IndexError("Terminal goal state {} is out of grid bounds or is wrong type. Should be an integer.".format(terminal_state))
         for terminal_state in self.lava_states:
             try:
-                self.reward_matrix[terminal_state] = doletas - 1
+                self.reward_matrix[terminal_state] = -1
             except IndexError:
                 raise IndexError("Lava terminal state {} is out of grid bounds or is wrong type. Should be an integer.".format(terminal_state))
 
@@ -219,6 +225,9 @@ class GridUniverseEnv(gym.Env):
     def is_lava(self, state):
         return True if state in self.lava_states else False
 
+    def is_trading(self, state):
+        return True if state in self.trading_states else False
+
     def is_terminal_goal(self, state):
         return True if state in self.goal_states else False
 
@@ -252,6 +261,8 @@ class GridUniverseEnv(gym.Env):
             new_world = np.fromiter(('o' for _ in np.nditer(np.arange(self.x_max))
                                      for _ in np.nditer(np.arange(self.y_max))), dtype='S1')
             new_world[self.current_state] = 'x'
+            for t_state in self.trading_states:
+                new_world[t_state] = 'A'
             for t_state in self.goal_states:
                 new_world[t_state] = 'G'
 
@@ -299,27 +310,7 @@ class GridUniverseEnv(gym.Env):
 
             self._create_custom_world_from_text(all_lines)
 
-    def _criar_memoria(estado_inicial):
-        memoria = "memoria.pkl"
-        # Verificando se o arquivo da memória existe
-        if os.path.join('./core/{}'.format(memoria)):
-            # Se existir apenda
-            with open(memoria, "rb") as f:
-                for _ in range(pickle.load(f)):
-                    estado_inicial.append(pickle.load(f))
-            f.close()
-        else:
-            # Se não existir cria
-            with open(memoria, "wb") as f:
-                pickle.dump(len(estado_inicial), f)
-                for estado in estado_inicial:
-                    pickle.dump(estado, f)
-            f.close()
-
-        return estado_inicial
-
-
-    def pegar_infos_conta(self):
+    def _pegar_infos_conta(self):
         info_conta = remote_send(reqSocket, 'INFO_CONTA')
         info_conta = info_conta.split(',')
 
@@ -348,7 +339,7 @@ class GridUniverseEnv(gym.Env):
         walls_indices = []
         self.trading_states = []
         # Infos da conta
-        #infos_conta = self.pegar_infos_conta()
+        #infos_conta = self._pegar_infos_conta()
         #saldo = infos_conta[0]
         #credito = infos_conta[1]
         #lucro = infos_conta[2]
@@ -381,8 +372,6 @@ class GridUniverseEnv(gym.Env):
                 raise ValueError("Input text file is not a rectangle")
 
             for char in line:
-                if char == 'A':
-                    self.trading_states.append(curr_index)
                 if char == 'G':
                     self.goal_states.append(curr_index)
                 elif char == 'L':
@@ -393,11 +382,15 @@ class GridUniverseEnv(gym.Env):
                     walls_indices.append(curr_index)
                 elif char == 'x':
                     self.starting_states.append(curr_index)
+                elif char == 'A':
+                    self.trading_states.append(curr_index)
                 else:
                     raise ValueError('Invalid Character "{}". Returning'.format(char))
 
                 curr_index += 1
 
+        if len(self.trading_states) == 0:
+            raise ValueError("Nenhum estado de trading foi definido no arquivo de texto. Adicione um \"A\" dentro da grade. ")
         if len(self.starting_states) == 0:
             raise ValueError("No starting states set in text file. Place \"x\" within grid. ")
         if len(self.goal_states) == 0:

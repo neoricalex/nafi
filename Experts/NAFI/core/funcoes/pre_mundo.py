@@ -31,7 +31,7 @@ def run_griduniverse_from_text_file():
                if done:
                      print("O Algoritmo resolveu a equação em {} tentativas".format(jogadas + 1))
                      salvar(observation=observation)
-                     print('[TODO]: Ver direito se o circuito da memória do estado inicial ta funcionando.')
+                     print('[TODO]: append GridUniverseEnv(initial_state=observation)')
                      rodando = False
                jogadas += 1
 
