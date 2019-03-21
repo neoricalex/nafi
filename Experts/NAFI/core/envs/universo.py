@@ -98,6 +98,9 @@ class GridUniverseEnv(gym.Env):
         initial_state = estado_inicial
         #print(estado_inicial)
 
+        # iniciar as recompensas
+        self.recompensas = 0
+
         self.starting_states = initial_state
         self.previous_state = self.current_state = self.initial_state = random.choice(self.starting_states)
 
@@ -129,8 +132,10 @@ class GridUniverseEnv(gym.Env):
         for teste_state in self.trading_states:
             try:
                 self.reward_matrix[teste_state] = 1
+                self.recompensas = self.recompensas + self.reward_matrix[teste_state]
+                print('Try Recompensa')
             except IndexError:
-                raise IndexError("O trading state {} is out of grid bounds or is wrong type. Should be an integer.".format(teste_state))
+                raise IndexError("O trading states {} is out of grid bounds or is wrong type. Should be an integer.".format(teste_state))
 
         for terminal_state in self.goal_states:
             try:
@@ -407,8 +412,11 @@ class GridUniverseEnv(gym.Env):
         self._generate_walls(walls_indices)
 
         self.reward_matrix = np.full(self.world.shape, -1)
+        for teste_state in self.trading_states:
+            self.reward_matrix[teste_state] = 100
+            self.recompensas = self.recompensas + self.reward_matrix[teste_state]
         for terminal_state in self.goal_states:
-            self.reward_matrix[terminal_state] = 10
+            self.reward_matrix[terminal_state] = self.recompensas
         for terminal_state in self.lava_states:
             self.reward_matrix[terminal_state] = -10
 
