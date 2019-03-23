@@ -197,9 +197,9 @@ void InterpretZmqMessage(string& compArray[])
         case 5:
             barra_shift = compArray[1]; // numero de Barras anteriores
             ret = "";
-            CopyRates(compArray[2],PERIOD_CURRENT,barra_shift,1,rate);
-            Print("Enviando: O=",rate[0].open," C=",rate[0].close," Data: ", rate[0].time);
-            ret = ret + StringFormat("%.6f,%.6f,%.d", rate[0].open, rate[0].close, rate[0].time);
+            CopyRates(compArray[2],PERIOD_CURRENT,barra_shift,1,rates);
+            Print("Enviando: ", "O:", rates[0].open, "H:", rates[0].high, "L:", rates[0].low, "C:", rates[0].close, "T:", rates[0].time);
+            ret = ret + StringFormat("%.6f,%.6f,%.6f,%.6f,%.d", rates[0].open, rates[0].high, rates[0].low, rates[0].close, rates[0].time);
             repSocket.send(ret, false);
             break;
         case 6:
