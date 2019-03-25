@@ -1,1 +1,0 @@
-from neoricalex.envs.ambiente import Ambiente

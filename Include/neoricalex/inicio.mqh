@@ -142,9 +142,10 @@ void InterpretZmqMessage(string& compArray[])
             break;
         case 2: 
             ret = "";
-            lotes = compArray[2];
+            ticker = compArray[2];
+            lotes = compArray[3];
           //--- everything is ready, trying to open a buy position
-            if(!trade.PositionOpen(_Symbol,ORDER_TYPE_BUY,lotes,price,SL,TP,comment))
+            if(!trade.PositionOpen(ticker,ORDER_TYPE_BUY,lotes,price,SL,TP,comment))
               {
                 //--- failure message
                 Print("PositionOpen() method failed. Return code=",trade.ResultRetcode(),

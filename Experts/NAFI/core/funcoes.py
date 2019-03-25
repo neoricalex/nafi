@@ -1,5 +1,5 @@
-from neoricalex.conexao import *
 import datetime, random
+from core.conexao import *
 
 def infos_ticker(ticker):
     infos_ticker = remote_send(reqSocket, 'INFO_TICKER|' + ticker)
@@ -45,3 +45,9 @@ def escolher_numero_velas():
     print('[DEBUG] funcoes.py/escolher_numero_velas = 1')
 
     return numero_velas
+
+def abrir_posicao(ticker, volume):
+    abre_posicao = remote_send(reqSocket, 'TRADE|OPEN|TICKER|0.2')
+    abre_posicao = abre_posicao.split(',')
+
+    return abre_posicao
