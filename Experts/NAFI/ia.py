@@ -36,7 +36,7 @@ def f(w):
             total_resets += 1
 
         if total_resets >= 10:
-            print('[INFO] RESET [DEBUG] total_resets >= 10')
+            #print('[INFO] RESET [DEBUG] total_resets >= 10')
             ambiente.reset()
             concluido = True
 
@@ -44,7 +44,12 @@ def f(w):
             filehandler = open("./core/w.pkl","wb")
             pickle.dump(w,filehandler)
             filehandler.close()
-
+            print('==================================================')
+            print('====================DEBUG=========================')
+            print('==============CALIBRAGEM DOS W\'s=================')
+            print('==================================================')
+            print(w)
+            print('==================================================')
             break
 
     return recompensa_total
@@ -62,18 +67,18 @@ if __name__ == "__main__":
         file = open("./core/w.pkl",'rb')
         w = pickle.load(file)
         file.close()
-    except:
+    except FileNotFoundError:
         filehandler = open("./core/w.pkl","wb")
         w = epsilon
         pickle.dump(w,filehandler)
         filehandler.close()
 
-    N = np.random.randn(npop, 13) # samples from a normal distribution N(0,1)
+    N = np.random.randn(npop, 50) # samples from a normal distribution N(0,1)
     R = np.zeros(npop)
     for j in range(npop):
         w_try = w + sigma*N[j] # jitter w using gaussian of sigma 0.1
         R[j] = f(w_try) # evaluate the jittered version
-        print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++', R[j])
+        #print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++', R[j])
 
     # standardize the rewards to have a gaussian distribution
     A = (R - np.mean(R)) / np.std(R)
