@@ -1,24 +1,28 @@
 import torch, zmq, random
+import random
 from random import randrange
 from torch.autograd import Variable
 from core.funcoes import *
+import numpy as np
 
-class Ambiente:  
+class Ambiente():  
 
     def __init__(self):
 
+        self.estado_atual = 0
         self.recompensas = 0.00 # Saldo do Agente
-        self.opcoes = [] # Opções do Agente
         self.carteira = [] # Portfólio
-        self.ticker = 'N/A'
-        self.volume = 0.00
+        self.ticker = 'N/A' # Ticker da posição
+        self.ticker_bom = [] # Ticker que ja ganhou
+        self.volume = 0.00 # Volume da posição
+        self.preco = 0.00 # Preço da posição
         
         # necessário para quem não tem GPU
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.tickers = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDCAD', 'AUDUSD',
                         'EURCHF', 'EURJPY', 'EURGBP', 'EURCAD', 'GBPCHF', 'GBPJPY', 
-                        'AUDJPY', 'GOLD', 'SILVER']
+                        'AUDJPY']
 
         self.tickers_index = randrange(len(self.tickers))
         self.ticker_selecionado = self.tickers[self.tickers_index]
@@ -54,67 +58,101 @@ class Ambiente:
         self.observacao[2][7] = float(self.observacao_conta[7]) # Margem socall
         self.observacao[2][8] = float(self.observacao_conta[8]) # Margem soso
         self.observacao[2][9] = int(self.observacao_conta[9]) # data
-        # Abrir Posição TODO: Tratar os fafos do retorno
+        # Abrir Posição TODO: Tratar os dados do retorno
         self.observacao_abrir_posicao = abrir_posicao(self.ticker, self.volume)
     
 
     def acoes(self):
+        self.opcoes = [] # Opções do Agente
         self.abrir_posicao = self.opcoes.append('abrir_posicao')
         self.fechar_posicao = self.opcoes.append('fechar_posicao')
         self.selecionar_ticker = self.opcoes.append('selecionar_ticker')
+        self.selecionar_melhor_ticker = self.opcoes.append('selecionar_melhor_ticker')
         self.selecionar_volume = self.opcoes.append('selecionar_volume')
+        self.selecionar_preco = self.opcoes.append('selecionar_preco')
 
         return self.opcoes
 
-    def acao(self, acao):
-
+    def estados(self, acao):
         if acao == 'fechar_posicao':
 
             if not self.carteira:
-                print('Sem posições para fechar')
+                #print('Sem posições para fechar')
                 self.recompensas -= 2
             else:
-                print('Existem posições para fechar')
+                #print('Existem posições para fechar')
                 self.recompensas += 1               
 
         elif acao == 'abrir_posicao':
 
-            print('Abrindo posição...')
+            #print('Abrindo posição...')
             if self.ticker == 'N/A':
                 self.recompensas -= 2
 
+            elif self.volume == 0.0:
+                self.recompensas -= 2
+
+            elif self.preco == 0.0:
+                self.recompensas -= 2
             else:
-                print('Abrindo posição com o ticker', self.ticker, '...')
-                if self.volume == 0.0:
-                    print('Sem Volume')
+                # Checkando se o agente tem saldo
+                self.preco_total_operacao = self.preco * self.volume
+                if self.preco_total_operacao > self.recompensas:
                     self.recompensas -= 2
                 else:
-                    print('Abrindo posição com o ticker', self.ticker, 'com o volume de', self.volume, '...')
-                    self.recompensas += 1
+                    # Checkando se o investimento não é mais de 1,5% do saldo
+                    self.investimento = self.recompensas * 0.015
+                    if self.preco_total_operacao > self.investimento:
+                        self.recompensas -= 2
+                    else:
+                        print('OPEN', self.ticker, 'VOLUME:',self.volume, 'PREÇO',  self.preco)
+                        self.ticker_bom.append(self.ticker)
+                        self.recompensas += 1
+
 
         elif acao == 'selecionar_ticker':
             self.ticker = self.ticker_selecionado
             self.recompensas += 1
 
+        elif acao == 'selecionar_melhor_ticker':
+            if not self.ticker_bom:
+                self.recompensas -= 2
+            else:
+                self.ticker = randrange(len(self.ticker_bom))
+                self.recompensas += 2
+
         elif acao == 'selecionar_volume':
-            self.volume = 0.01  # TODO: Mais IA por aqui ...
+            # TODO: Implementar > https://scikit-learn.org/stable/auto_examples/linear_model/plot_lasso_and_elasticnet.html#sphx-glr-auto-examples-linear-model-plot-lasso-and-elasticnet-py
+            self.volume = round(random.random(), 2)
+            self.recompensas += 1
+
+        elif acao == 'selecionar_preco':
+            self.preco = self.observacao[0][2].item() # TODO: 
             self.recompensas += 1
 
         else:
-            print('Bug detetado!')
+            print('[DEBUG]: Opção não existente na acao:', acao)
+
+        return self.acao, self.recompensas
+
+    def acao(self, acao):
+        self.estado_atual = self.estados(acao)
 
         return self.acao, self.recompensas
 
     def concluido(self):
-        if self.recompensas == 10.00:
-            self.reset()
+        if self.recompensas >= 1000.00:
             return True
         else:
             return False
 
     def reset(self):
+        self.estado_atual = self.acao
         self.recompensas = 0.00 # Saldo do Agente
-        self.opcoes = [] # Opções do Agente
         self.carteira = [] # Portfólio
-        self.ticker = 'N/A'
-        self.volume = 0.00
+        self.ticker = 'N/A' # Ticker da posição
+        self.ticker_bom = [] # Ticker que ja ganhou
+        self.volume = 0.00 # Volume da posição
+        self.preco = 0.00 # Preço da posição
+
+        return random.random()

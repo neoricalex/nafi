@@ -1,4 +1,5 @@
 import datetime, random
+import array as arr
 from core.conexao import *
 
 def infos_ticker(ticker):
@@ -47,7 +48,71 @@ def escolher_numero_velas():
     return numero_velas
 
 def abrir_posicao(ticker, volume):
-    abre_posicao = remote_send(reqSocket, 'TRADE|OPEN|TICKER|0.2')
+    abre_posicao = remote_send(reqSocket, 'TRADE|OPEN|TICKER|VOLUME')
     abre_posicao = abre_posicao.split(',')
 
     return abre_posicao
+
+# Starting adaptation from https://prakhartechviz.blogspot.com/2019/02/epsilon-greedy-reinforcement-learning.html
+counts = [0,0,0,0,0,0]
+values = [0,0,0,0,0,0]
+value = 0
+
+def explore(values):  
+    '''  
+    Returns the index of maximum average value   
+    for an acao  
+    '''  
+    return values.index(max(values))
+
+def exploit(values):  
+    '''  
+    Returns random average value for an acao  
+    '''  
+
+    return random.randrange(len(values))
+
+def select_acao(epsilon, values):  
+    '''  
+    If the random number is greater than epsilon  
+    then we exploit else we explore.  
+    '''  
+
+    if random.random() > epsilon:
+        print('[DEBUG] Decisão:', exploit(values))  
+        return exploit(values)  
+    else: 
+        print('[DEBUG] Explorar:', exploit(values))  
+        return explore(values)
+
+def update_counts(acao):  
+    '''  
+    Update the value of count corresponding   
+    to the acao that is taken.  
+    '''  
+
+    counts[acao] = counts[acao] + 1 
+
+    return counts
+
+def update_values(acao, reward, counts):  
+    '''  
+    Calculates the estimated value for the chosen  
+    acao. If this is the first experience ever with   
+    the chosen arm, we set the estimated value directly   
+    to the reward we just received from playing that arm.  
+    If we had played the arm in the past, i.e n != 0,   
+    we update the estimated value of the chosen arm to   
+    be a weighted average of the previously estimated   
+    value and the reward we just received.  
+    '''  
+    current_value = values[acao]  
+    n = counts[acao]  
+    values[acao] = ((n-1)/float(n))*value + (1/float(n))*reward  
+    return values
+
+def update_all(acao, reward):  
+    counts = update_counts(acao)  
+    values = update_values(acao, reward, counts)  
+    return counts, values  
+# End adaptation
