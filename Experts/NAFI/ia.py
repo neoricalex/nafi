@@ -1,5 +1,6 @@
+
 from core.ambiente import Ambiente
-from core.ffn import FeedForwardNetwork
+from core.funcoes import pingar_mt5
 import random
 import sys
 import numpy as np
@@ -8,21 +9,7 @@ try:
 except ImportError:
     import cPickle as pickle
 
-def get_weights():
-    return w
-
-def set_weights(w):
-    w = w
-
-def save(filename='./weights.pkl'):
-    with open(filename, 'wb') as fp:
-        pickle.dump(w, fp)
-    fp.close()
-
-def load(filename='weights.pkl'):
-    with open(filename, 'rb') as fp:
-        w = pickle.load(fp)
-    fp.close
+np.random.seed(0)
 
 def f(w):
     ambiente = Ambiente()
@@ -54,15 +41,16 @@ def f(w):
             concluido = True
 
         if concluido == True:
-            file = open("./core/w.pkl",'rb')
-            w = pickle.load(file)
-            file.close() 
+            filehandler = open("./core/w.pkl","wb")
+            pickle.dump(w,filehandler)
+            filehandler.close()
 
             break
 
     return recompensa_total
 
 if __name__ == "__main__":
+        
     # hyperparameters
     npop = 50 # population size
     sigma = 0.1 # noise standard deviation
@@ -80,7 +68,7 @@ if __name__ == "__main__":
         pickle.dump(w,filehandler)
         filehandler.close()
 
-    N = np.random.randn(npop, 3) # samples from a normal distribution N(0,1)
+    N = np.random.randn(npop, 13) # samples from a normal distribution N(0,1)
     R = np.zeros(npop)
     for j in range(npop):
         w_try = w + sigma*N[j] # jitter w using gaussian of sigma 0.1

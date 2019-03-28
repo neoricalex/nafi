@@ -1,5 +1,5 @@
 import datetime, random
-import array as arr
+import socket
 from core.conexao import *
 
 def infos_ticker(ticker):
@@ -116,3 +116,12 @@ def update_all(acao, reward):
     values = update_values(acao, reward, counts)  
     return counts, values  
 # End adaptation
+
+def pingar_mt5(ip,porta):
+   pingar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+   try:
+      pingar.connect((ip, int(porta)))
+      pingar.shutdown(2)
+      return True
+   except:
+      return False

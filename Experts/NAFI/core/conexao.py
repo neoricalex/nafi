@@ -14,3 +14,4 @@ context = zmq.Context()
 # Criar um Socket para as requisições
 reqSocket = context.socket(zmq.REQ)
 reqSocket.connect("tcp://localhost:5555")
+
