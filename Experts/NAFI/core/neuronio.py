@@ -1,5 +1,3 @@
-# Adapted from https://medium.com/@thomascountz/19-line-line-by-line-python-perceptron-b6f113b161f3
-
 import numpy as np
 
 class Perceptron(object):

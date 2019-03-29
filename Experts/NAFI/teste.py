@@ -1,4 +1,3 @@
-from core.agente import *
+from core.funcoes import *
 
-# Instanciar o Agente    
-agente = reinforce()
+abrir_posicao(self.ticker, self.volume)
