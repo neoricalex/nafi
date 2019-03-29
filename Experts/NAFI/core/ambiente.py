@@ -109,6 +109,10 @@ class Ambiente():
                         self.ticker_bom.append(self.ticker)
                         self.recompensas += 1
 
+                    # TODO: Checkar se com +1 investimento não passa dos 50% a descoberto
+
+                    # Iniciando a compra ...
+
 
         elif acao == 'selecionar_ticker':
             self.ticker = self.ticker_selecionado

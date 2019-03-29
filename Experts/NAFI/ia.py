@@ -18,11 +18,11 @@ def f(w):
     total_resets = 0
     acoes = ambiente.acoes()
     estado_inicial = random.choice(acoes)  
-    concluido = ambiente.concluido()
     proximo_estado = estado_atual = estado_inicial
     acao = estado_atual
     recompensa = recompensa_total
     concluido = ambiente.concluido()
+    bancarrota = False
 
     while True:
         concluido = ambiente.concluido()
@@ -38,9 +38,12 @@ def f(w):
         if total_resets >= 10:
             #print('[INFO] RESET [DEBUG] total_resets >= 10')
             ambiente.reset()
+            bancarrota = True
             concluido = True
 
         if concluido == True:
+            if bancarrota:
+                pass
             filehandler = open("./core/w.pkl","wb")
             pickle.dump(w,filehandler)
             filehandler.close()
@@ -60,6 +63,7 @@ if __name__ == "__main__":
     npop = 50 # population size
     sigma = 0.1 # noise standard deviation
     alpha = 0.001 # learning rate
+
     # Definindo o epsilon
     epsilon = sys.float_info.epsilon
 
