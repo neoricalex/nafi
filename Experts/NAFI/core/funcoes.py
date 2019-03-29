@@ -48,10 +48,11 @@ def escolher_numero_velas():
     return numero_velas
 
 def abrir_posicao(ticker, volume):
-    abre_posicao = remote_send(reqSocket, 'TRADE|OPEN|TICKER|VOLUME')
+    abre_posicao = remote_send(reqSocket, 'TRADE|OPEN|' + ticker + '|' + str(volume))
     abre_posicao = abre_posicao.split(',')
+    ticket = abre_posicao[0]
 
-    return abre_posicao
+    return ticket
 
 # Starting adaptation from https://prakhartechviz.blogspot.com/2019/02/epsilon-greedy-reinforcement-learning.html
 counts = [0,0,0,0,0,0]
@@ -117,11 +118,3 @@ def update_all(acao, reward):
     return counts, values  
 # End adaptation
 
-def pingar_mt5(ip,porta):
-   pingar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   try:
-      pingar.connect((ip, int(porta)))
-      pingar.shutdown(2)
-      return True
-   except:
-      return False

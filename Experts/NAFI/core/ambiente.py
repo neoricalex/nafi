@@ -59,7 +59,12 @@ class Ambiente():
         self.observacao[2][8] = float(self.observacao_conta[8]) # Margem soso
         self.observacao[2][9] = int(self.observacao_conta[9]) # data
         # Abrir Posição TODO: Tratar os dados do retorno
+
+    def abrir_posicao_compra(self, ticker, volume):
         self.observacao_abrir_posicao = abrir_posicao(self.ticker, self.volume)
+        self.observacao[3][0] = int(float(''+self.observacao_abrir_posicao+'.0')) # Ticket
+
+        return self.observacao[3][0].item()
     
 
     def acoes(self):
@@ -80,7 +85,7 @@ class Ambiente():
                 #print('Sem posições para fechar')
                 self.recompensas -= 2
             else:
-                #print('Existem posições para fechar')
+                print('Existem posições para fechar')
                 self.recompensas += 1               
 
         elif acao == 'abrir_posicao':
@@ -106,12 +111,18 @@ class Ambiente():
                         self.recompensas -= 2
                     else:
                         print('OPEN', self.ticker, 'VOLUME:',self.volume, 'PREÇO',  self.preco)
-                        self.ticker_bom.append(self.ticker)
+                        self.ticker_bom.append(self.ticker) # TODO: Ver melhor esta parte
                         self.recompensas += 1
 
                     # TODO: Checkar se com +1 investimento não passa dos 50% a descoberto
+                    # TODO: Adicionar preço, SL, TP e comment se existir...
 
                     # Iniciando a compra ...
+                    #self.compra = self.abrir_posicao_compra(self.ticker, self.volume)
+                    #self.adicionar_a_carteira = self.carteira.append(self.compra)
+                    # TODO: Handlar melhor a self.carteira
+
+
 
 
         elif acao == 'selecionar_ticker':
@@ -153,7 +164,7 @@ class Ambiente():
     def reset(self):
         self.estado_atual = self.acao
         self.recompensas = 0.00 # Saldo do Agente
-        self.carteira = [] # Portfólio
+        #self.carteira = [] # Portfólio
         self.ticker = 'N/A' # Ticker da posição
         self.ticker_bom = [] # Ticker que ja ganhou
         self.volume = 0.00 # Volume da posição

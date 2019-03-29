@@ -41,12 +41,12 @@ class Agente(object):
                 filehandler = open("./core/dablios.pkl","wb")
                 pickle.dump(w,filehandler)
                 filehandler.close()
-                print('==================================================')
-                print('====================DEBUG=========================')
-                print('==============CALIBRAGEM DOS W\'s=================')
-                print('==================================================')
-                print(w)
-                print('==================================================')
+                #print('==================================================')
+                #print('====================DEBUG=========================')
+                #print('==============CALIBRAGEM DOS W\'s=================')
+                #print('==================================================')
+                #print(w)
+                #print('==================================================')
                 break
 
         return recompensa_total
@@ -107,8 +107,8 @@ if __name__ == "__main__":
     # is just an efficient way to sum up all the rows of the noise matrix N,
     # where each row N[j] is weighted by A[j]
     w = w + alpha/(npop*sigma) * np.dot(N.T, A)
-    print(dendritos)
-    exit()
+    #print(dendritos)
+    #exit()
     # TODO: Fazer um for loop em cada iteração para definirmos que o 1 Lucrou é bom e o 0 é a Bancarrota
     #labels = np.array([1, 0, 0, 0])
 
