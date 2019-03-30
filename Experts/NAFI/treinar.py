@@ -5,7 +5,7 @@ print('Importando as bibliotecas...')
 from subprocess import Popen
 import sys, socket
 
-print('Checkar se o servidor tá online...')
+print('Checkar se o servidor está online...')
 ip = 'localhost'
 porta = '5555'
 pingar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

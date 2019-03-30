@@ -1,8 +1,7 @@
-
 from core.ambiente import Ambiente
 from core.neuronio import Perceptron
 import random
-import sys
+import sys, math
 import numpy as np
 try:
     import _pickle as pickle
@@ -38,9 +37,9 @@ class Agente(object):
             if concluido == True:
                 if bancarrota:
                     pass
-                filehandler = open("./core/dablios.pkl","wb")
-                pickle.dump(w,filehandler)
-                filehandler.close()
+                file = open("./core/dablios.pkl","wb")
+                pickle.dump(w,file)
+                file.close()
                 #print('==================================================')
                 #print('====================DEBUG=========================')
                 #print('==============CALIBRAGEM DOS W\'s=================')
@@ -64,10 +63,10 @@ if __name__ == "__main__":
     except FileNotFoundError:
         # Caso não exista, cria a memória com o epsilon da máquina
         # TODO: Implementar > https://stats.stackexchange.com/questions/347106/what-is-epsilon-k-in-epsilon-greedy-algorithm
-        filehandler = open("./core/dablios.pkl","wb")
+        file = open("./core/dablios.pkl","wb")
         w = epsilon
-        pickle.dump(w,filehandler)
-        filehandler.close()
+        pickle.dump(w,file)
+        file.close()
 
     # Definindo as variáveis do algoritmo
     agente = Agente()
@@ -86,30 +85,32 @@ if __name__ == "__main__":
     dendritos = []
 
     # Adicionando a matemática
-    # Adapted from https://openai.com/blog/evolution-strategies/
-    # hyperparameters
-    npop = 13 # population size
-    sigma = 0.1 # noise standard deviation
-    alpha = 0.001 # learning rate
+    # Being adapted from https://openai.com/blog/evolution-strategies/
+    # With hyperparameters from http://www.jmlr.org/papers/volume15/wierstra14a/wierstra14a.pdf
+
+    mu = 13 # Número de Tickers/População <NOTE: Talvez venha a trocar por lambda. Estou analisando>
+    sigma = 0.1 # Ruído gaussiano
+    eta = 0.01 # Taxa de aprendizagem
+    # TODO: definir o rho
 
     # gerar dois arrays para comparação
-    N = np.random.randn(npop, 13) # samples from a normal distribution N(0,1)
-    R = np.zeros(npop) # Recompensas de cada w
+    N = np.random.randn(mu, 13) # samples from a normal distribution N(0,1)
+    R = np.zeros(mu) # Recompensas de cada w
 
     # Iniciar o Loop
-    for j in range(npop):
-        w_try = w + sigma*N[j] # jitter w using gaussian of sigma 0.1
-        R[j] = agente.f(w_try, total_passos, total_resets, bancarrota) # evaluate the jittered version
+    for neuronio in range(mu):
+        w_try = w + sigma*N[neuronio] # jitter w using gaussian of sigma 0.1
+        R[neuronio] = agente.f(w_try, total_passos, total_resets, bancarrota) # evaluate the jittered version
 
     # standardize the rewards to have a gaussian distribution
     A = (R - np.mean(R)) / np.std(R)
     # perform the parameter update. The matrix multiply below
     # is just an efficient way to sum up all the rows of the noise matrix N,
-    # where each row N[j] is weighted by A[j]
-    w = w + alpha/(npop*sigma) * np.dot(N.T, A)
+    # where each row N[neuronio] is weighted by A[neuronio]
+    w = w + eta/(mu*sigma) * np.dot(N.T, A)
     #print(dendritos)
     #exit()
-    # TODO: Fazer um for loop em cada iteração para definirmos que o 1 Lucrou é bom e o 0 é a Bancarrota
+    # TODO: Fazer um for loop em cada iteração para definirmos que o 1 é bom e o 0 é a Bancarrota
     #labels = np.array([1, 0, 0, 0])
 
     # TODO: depois e tambem a cada iteração vamos criar um neurónio para treinar ele
