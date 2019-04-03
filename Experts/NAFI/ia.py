@@ -12,11 +12,11 @@ np.random.seed(0)
 
 class Agente(object):
 
-    def f(self, w, total_passos, total_resets, bancarrota):
+    def f(self, receptores, total_passos, total_resets, bancarrota):
 
         while True:
-            # [PERCEPTRON] Vamos apendar os w's 
-            dendritos.append(np.array(w))
+            # [PERCEPTRON] Vamos apendar os receptores 
+            dendritos.append(np.array(receptores))
 
             concluido = ambiente.concluido()
             acao, recompensa = ambiente.acao(random.choice(acoes))
@@ -37,8 +37,8 @@ class Agente(object):
             if concluido == True:
                 if bancarrota:
                     pass
-                file = open("./core/dablios.pkl","wb")
-                pickle.dump(w,file)
+                file = open("./core/receptores.pkl","wb")
+                pickle.dump(receptores,file)
                 file.close()
                 #print('==================================================')
                 #print('====================DEBUG=========================')
@@ -50,27 +50,35 @@ class Agente(object):
 
         return recompensa_total
 
+    def carregar_memoria(self):
+        # Carregando a memória
+        try:
+            file = open("./core/receptores.pkl",'rb')
+            receptores = pickle.load(file)
+            file.close()
+        except FileNotFoundError:
+            # Caso não exista, cria a memória com o epsilon da máquina
+            # TODO: Implementar > https://stats.stackexchange.com/questions/347106/what-is-epsilon-k-in-epsilon-greedy-algorithm
+            file = open("./core/receptores.pkl","wb")
+            receptores = epsilon
+            pickle.dump(receptores,file)
+            file.close()
+
+        return receptores
+
 if __name__ == "__main__":
-        
-    # Definindo o epsilon da máquina
-    epsilon = sys.float_info.epsilon
 
-    # Carregando a memória
-    try:
-        file = open("./core/dablios.pkl",'rb')
-        w = pickle.load(file)
-        file.close()
-    except FileNotFoundError:
-        # Caso não exista, cria a memória com o epsilon da máquina
-        # TODO: Implementar > https://stats.stackexchange.com/questions/347106/what-is-epsilon-k-in-epsilon-greedy-algorithm
-        file = open("./core/dablios.pkl","wb")
-        w = epsilon
-        pickle.dump(w,file)
-        file.close()
-
-    # Definindo as variáveis do algoritmo
+    # Instanciar as classes
     agente = Agente()
     ambiente = Ambiente()
+        
+    # Definindo o epsilon com o epsilon da máquina
+    epsilon = sys.float_info.epsilon
+
+    # Carregar a memória
+    receptores = agente.carregar_memoria()
+
+    # Definindo as variáveis do algoritmo
     recompensa_total = 0
     total_passos = 0
     total_resets = 0
@@ -80,6 +88,7 @@ if __name__ == "__main__":
     acao = estado_atual
     recompensa = recompensa_total
     bancarrota = False
+    
     # Fazer o neurónio(Perceptron) na unha. Mais infos: https://pt.wikipedia.org/wiki/Perceptron
     # Adapted from https://medium.com/@thomascountz/19-line-line-by-line-python-perceptron-b6f113b161f3
     dendritos = []
@@ -88,28 +97,27 @@ if __name__ == "__main__":
     # Being adapted from https://openai.com/blog/evolution-strategies/
     # With hyperparameters from http://www.jmlr.org/papers/volume15/wierstra14a/wierstra14a.pdf
 
-    mu = 13 # Número de Tickers/População <NOTE: Talvez venha a trocar por lambda. Estou analisando>
+    mu = 13 # Número de População/Tickers <NOTE: Talvez venha a trocar por lambda. Estou analisando>
     sigma = 0.1 # Ruído gaussiano
     eta = 0.01 # Taxa de aprendizagem
     # TODO: definir o rho
 
     # gerar dois arrays para comparação
     N = np.random.randn(mu, 13) # samples from a normal distribution N(0,1)
-    R = np.zeros(mu) # Recompensas de cada w
+    R = np.zeros(mu) # Recompensas de cada receptor
 
     # Iniciar o Loop
-    for neuronio in range(mu):
-        w_try = w + sigma*N[neuronio] # jitter w using gaussian of sigma 0.1
-        R[neuronio] = agente.f(w_try, total_passos, total_resets, bancarrota) # evaluate the jittered version
+    for receptor in range(mu):
+        impulso = receptores + sigma*N[receptor] # jitter receptores using gaussian of sigma 0.1
+        R[receptor] = agente.f(impulso, total_passos, total_resets, bancarrota) # evaluate the jittered version
 
     # standardize the rewards to have a gaussian distribution
     A = (R - np.mean(R)) / np.std(R)
     # perform the parameter update. The matrix multiply below
     # is just an efficient way to sum up all the rows of the noise matrix N,
-    # where each row N[neuronio] is weighted by A[neuronio]
-    w = w + eta/(mu*sigma) * np.dot(N.T, A)
-    #print(dendritos)
-    #exit()
+    # where each row N[receptor] is weighted by A[receptor]
+    receptores = receptores + eta/(mu*sigma) * np.dot(N.T, A)
+
     # TODO: Fazer um for loop em cada iteração para definirmos que o 1 é bom e o 0 é a Bancarrota
     #labels = np.array([1, 0, 0, 0])
 
@@ -149,7 +157,7 @@ if __name__ == "__main__":
     #solution = np.array(w)
  
     # Os inputs é os w's alterados com o sigma
-    #inp = np.asarray([w_try])
+    #inp = np.asarray([impulso])
 
     # A diferença dos dois ou será a função LOSS ou o valor Otimizado do Sigma. TODO: Pensar e analizar melhor
     #def get_reward(weights):

@@ -65,6 +65,13 @@ class Ambiente():
         self.observacao[3][0] = int(float(''+self.observacao_abrir_posicao+'.0')) # Ticket
 
         return self.observacao[3][0].item()
+
+    def fechar_posicao_compra(self, ticket):
+        self.fechar_posicao = remote_send(reqSocket, 'TRADE|CLOSE|' + ticket)
+        self.fechar_posicao = self.fechar_posicao.split(',')
+        self.carteira.pop(ticket)
+
+        return random.random()
     
 
     def acoes(self):

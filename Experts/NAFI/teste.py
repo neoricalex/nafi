@@ -1,4 +1,6 @@
 from core.funcoes import *
 
+carteira = []
 teste = abrir_posicao('EURUSD', '0.01')
-print(teste)
+carteira.append(teste)
+print(carteira)
