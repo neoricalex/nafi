@@ -13,7 +13,6 @@ class Ambiente():
         self.recompensas = 0.00 # Saldo do Agente
         self.carteira = [] # Portfólio
         self.ticker = 'N/A' # Ticker da posição
-        self.ticker_bom = [] # Ticker que ja ganhou
         self.volume = 0.00 # Volume da posição
         self.preco = 0.00 # Preço da posição
         
@@ -79,7 +78,6 @@ class Ambiente():
         self.abrir_posicao = self.opcoes.append('abrir_posicao')
         self.fechar_posicao = self.opcoes.append('fechar_posicao')
         self.selecionar_ticker = self.opcoes.append('selecionar_ticker')
-        self.selecionar_melhor_ticker = self.opcoes.append('selecionar_melhor_ticker')
         self.selecionar_volume = self.opcoes.append('selecionar_volume')
         self.selecionar_preco = self.opcoes.append('selecionar_preco')
 
@@ -93,7 +91,7 @@ class Ambiente():
                 self.recompensas -= 2
             else:
                 print('Existem posições para fechar')
-                self.recompensas += 1               
+                # TODO: Handlar melhor o ticket
 
         elif acao == 'abrir_posicao':
 
@@ -119,7 +117,6 @@ class Ambiente():
                     else:
                         print('OPEN', self.ticker, 'VOLUME:',self.volume, 'PREÇO',  self.preco)
                         self.ticker_bom.append(self.ticker) # TODO: Ver melhor esta parte
-                        self.recompensas += 1
 
                     # TODO: Checkar se com +1 investimento não passa dos 50% a descoberto
                     # TODO: Adicionar preço, SL, TP e comment se existir...
@@ -127,30 +124,26 @@ class Ambiente():
                     # Iniciando a compra ...
                     #self.compra = self.abrir_posicao_compra(self.ticker, self.volume)
                     #self.adicionar_a_carteira = self.carteira.append(self.compra)
-                    # TODO: Handlar melhor a self.carteira
+                    # TODO: Testar mais a self.carteira
 
 
 
 
         elif acao == 'selecionar_ticker':
             self.ticker = self.ticker_selecionado
-            self.recompensas += 1
 
         elif acao == 'selecionar_melhor_ticker':
             if not self.ticker_bom:
                 self.recompensas -= 2
             else:
                 self.ticker = randrange(len(self.ticker_bom))
-                self.recompensas += 2
 
         elif acao == 'selecionar_volume':
             # TODO: Implementar > https://scikit-learn.org/stable/auto_examples/linear_model/plot_lasso_and_elasticnet.html#sphx-glr-auto-examples-linear-model-plot-lasso-and-elasticnet-py
             self.volume = round(random.random(), 2)
-            self.recompensas += 1
 
         elif acao == 'selecionar_preco':
             self.preco = self.observacao[0][2].item() # TODO: 
-            self.recompensas += 1
 
         else:
             print('[DEBUG]: Opção não existente na acao:', acao)
